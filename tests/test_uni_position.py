@@ -15,10 +15,14 @@ def weth(interface):
     return interface.WETH('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
 
 @pytest.fixture(scope='module')
+def positionManager(interface):
+    return interface.NonfungiblePositionManager('0xC36442b4a4522E871399CD717aBDD847Ab11FE88')
+
+@pytest.fixture(scope='module')
 def actor(accounts):
     return accounts[0]
 
-def test_position(actor, steth, wsteth, weth):
+def test_position(actor, steth, wsteth, weth, positionManager):
     amount = 10**18
     steth.submit(actor, {"from": actor, "amount": 2*amount})
     steth.approve(wsteth, 2*amount, {"from": actor})
@@ -28,4 +32,4 @@ def test_position(actor, steth, wsteth, weth):
     wsteth.transfer(positionMaker, amount, {"from": actor})
     weth.transfer(positionMaker, amount, {"from": actor})
     positionMaker.createPosition(amount, amount)
-    print(positionMaker.position())
+    print(positionManager.positions(positionMaker.position()))
